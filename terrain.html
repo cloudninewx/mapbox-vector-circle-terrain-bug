@@ -1,0 +1,112 @@
+<html>
+
+<head>
+  <link type="stylesheet" href="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css" />
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+    }
+
+    #map {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 100%;
+    }
+    #stats {
+      position: relative;
+      height: 20px;
+      background-color: '#fff';
+      width: 100%;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="map">
+    <div id="stats"></div>
+  </div>
+</body>
+
+<script src="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.js"></script>
+<script>
+  mapboxgl.accessToken = 'pk.eyJ1IjoiY2xvdWRuaW5ld3giLCJhIjoiY2s5N2M2Y2lkMGEzYzNsbGI3NGljZ252ZCJ9.vXw5Ok1uMKLMCgUPm2CCHA';
+  const map = new mapboxgl.Map({
+    container: 'map',
+    style: 'mapbox://styles/mapbox/satellite-v9',
+    center: [-121.39, 47.39],
+    zoom: 8,
+  });
+
+  map.on('style.load', () => {
+    map.addSource('mapbox-dem', {
+      type: 'raster-dem',
+      url: 'mapbox://mapbox.mapbox-terrain-dem-v1',
+      tileSize: 512,
+      maxzoom: 14,
+    });
+
+    const exaggerationParam = Number(new URLSearchParams(window.location.search).get('exaggeration'));
+    map.setTerrain({
+      source: 'mapbox-dem',
+      exaggeration: Number.isNaN(exaggerationParam) ? 1 : exaggerationParam,
+    });
+  });
+
+  map.on('load', () => {
+    map.addSource('points-geojson-source', {
+      type: 'geojson',
+      data: `${window.location.origin}/points.geojson`
+    });
+
+    map.addSource('points-vector-source', {
+      // tiles: [
+      //   `${window.location.origin}/points-vector-tiles/{z}/{x}/{y}.pbf`
+      // ],
+      // minzoom: 0,
+      // maxzoom: 8,
+      url: 'mapbox://cloudninewx.5hyj85s4',
+      type: 'vector',
+    });
+
+    map.addLayer({
+      id: 'points-geojson-layer',
+      type: 'circle',
+      source: 'points-geojson-source',
+      paint: {
+        'circle-radius': 20,
+        'circle-color': '#FF0000',
+        'circle-opacity': 0.9,
+      }
+    });
+
+    map.addLayer({
+      id: 'points-vector-layer',
+      type: 'circle',
+      source: 'points-vector-source',
+      'source-layer': 'points',
+      paint: {
+        'circle-radius': 10,
+        'circle-color': '#00FF00',
+        'circle-stroke-color': 'white',
+        'circle-stroke-width': 2,
+      }
+    });
+  });
+
+
+  function updateStats() {
+    document.getElementById('stats').innerHTML = `
+      Zoom: ${map.getZoom().toFixed('4')}z,
+      Terrain exaggeration: ${map.getTerrain().exaggeration}x,
+      queryRenderedFeatures count: ${map.queryRenderedFeatures({ layers: ['points-vector-layer'] }).length}
+    `;
+  }
+
+  map.on('moveend', updateStats);
+  map.on('idle', updateStats);
+
+</script>
+
+</html>

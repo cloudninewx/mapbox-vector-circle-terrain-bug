@@ -1,0 +1,14 @@
+{
+"name": "points-vector-tiles",
+"description": "points-vector-tiles",
+"version": "2",
+"minzoom": "0",
+"maxzoom": "8",
+"center": "-121.435374,47.436092,8",
+"bounds": "-121.435374,47.388501,-121.390990,47.436092",
+"type": "overlay",
+"format": "pbf",
+"generator": "tippecanoe v1.36.0",
+"generator_options": "tippecanoe -z0 -z8 -e points-vector-tiles -d 22 -D 22 -r1 points.geojson --force",
+"json": "{\"vector_layers\": [ { \"id\": \"points\", \"description\": \"\", \"minzoom\": 0, \"maxzoom\": 8, \"fields\": {} } ],\"tilestats\": {\"layerCount\": 1,\"layers\": [{\"layer\": \"points\",\"count\": 5,\"geometry\": \"Point\",\"attributeCount\": 0,\"attributes\": []}]}}"
+}
